@@ -5,6 +5,8 @@ export RUSTUP_TOOLCHAIN=1.99.0
 [[ "$(node --version)" == v22.23.3 ]]
 [[ "$(rustc --version)" == 'rustc 1.99.0 (b940084d7 2026-09-28)' ]]
 root=$(pwd)
+# The canonical container path can have a different filesystem owner.
+git config --global --add safe.directory "$root"
 mkdir -p .hyperspaces-tools
 cp scripts/hyperspaces/tools.package.json .hyperspaces-tools/package.json
 cp scripts/hyperspaces/tools.pnpm-lock.yaml .hyperspaces-tools/pnpm-lock.yaml
