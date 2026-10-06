@@ -180,6 +180,11 @@ impl Tracker {
                     let leaf = self.rope.tree().get_elem(new_leaf_idx).unwrap();
                     updates.push((leaf.id_span(), new_leaf_idx));
                 }
+                // HyperSpaces modification: a split can report the same final leaf
+                // repeatedly. Its ID span is unchanged during remapping, and distinct
+                // final leaves have disjoint spans, so each leaf needs one update.
+                updates.sort_unstable_by_key(|(_, leaf)| *leaf);
+                updates.dedup_by_key(|(_, leaf)| *leaf);
                 self.id_to_cursor.update_insert_batch(&mut updates);
             }
         }

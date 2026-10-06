@@ -1,5 +1,13 @@
 {
   "version": "5",
+  "specifiers": {
+    "npm:brotli-wasm@3.0.1": "3.0.1"
+  },
+  "npm": {
+    "brotli-wasm@3.0.1": {
+      "integrity": "sha512-U3K72/JAi3jITpdhZBqzSUq+DUY697tLxOuFXB+FpAE/Ug+5C3VZrv4uA674EUZHxNAuQ9wETXNqQkxZD6oL4A=="
+    }
+  },
   "redirects": {
     "https://deno.land/std/archive/mod.ts": "https://deno.land/std@0.224.0/archive/mod.ts",
     "https://deno.land/std/encoding/base64.ts": "https://deno.land/std@0.224.0/encoding/base64.ts",
@@ -175,6 +183,7 @@
     "https://deno.land/x/compress@v0.4.5/gzip/mod.ts": "4ade8edbe01b54a84f289351e137ebdfc040a74cd616636770cf1724fbf522d1",
     "https://deno.land/x/compress@v0.4.5/gzip/writer_gunzip.ts": "5aba34394820b835c414048ac2e15f52d443f1f773ebe61fd2517c938572d616",
     "https://deno.land/x/compress@v0.4.5/gzip/writer_gzip.ts": "c7aad0c51ab4f5952c068088186339cfc79a2ee1e057d6e16731b1175f342645",
+    "https://deno.land/x/compress@v0.4.5/interface.ts": "fc5f87bd208ab8a03a1f65972b11781967c3d21c3d756fe9ae99ca98e10e5780",
     "https://deno.land/x/compress@v0.4.5/mod.ts": "ae8b15826334021583a5bd1978c63840f85156ea3635f5941bfc6733aad247e5",
     "https://deno.land/x/compress@v0.4.5/tar/mod.ts": "6d9073005e678479908047cbe9e4716e484f80d1f2a1e15d3d6ac92213ffaeba",
     "https://deno.land/x/compress@v0.4.5/tgz/mod.ts": "2fd4e99f26b57b0055d4d2f87721682304541ed1ca41bbb49c034d121f936f00",
@@ -206,32 +215,5 @@
     "https://lra6z45nakk5lnu3yjchp7tftsdnwwikwr65ocha5eojfnlgu4sa.arweave.net/XEHs860CldW2m8JEd_5lnIbbWQq0fdcI4OkckrVmpyQ/path/separator.ts": "9dd15d46ff84a16e13554f56af7fee1f85f8d0f379efbbe60ac066a60561f036",
     "https://lra6z45nakk5lnu3yjchp7tftsdnwwikwr65ocha5eojfnlgu4sa.arweave.net/XEHs860CldW2m8JEd_5lnIbbWQq0fdcI4OkckrVmpyQ/path/win32.ts": "47114c941681ecbabab4ec355cb41d525fb5a14175cc47a5c76fdc5eaee2685a",
     "https://raw.githubusercontent.com/zxch3n/dirname/master/mod.ts": "79768be98329cc670a80bd4f5ce9800412944aba27f563a6314ae2c4589be229"
-  },
-  "workspace": {
-    "packageJson": {
-      "dependencies": [
-        "npm:@rollup/plugin-alias@^5.1.1",
-        "npm:@rollup/plugin-node-resolve@^15.0.1",
-        "npm:@rollup/plugin-typescript@^12.1.1",
-        "npm:@rollup/plugin-wasm@^6.2.2",
-        "npm:@typescript-eslint/parser@^6.2.0",
-        "npm:@vitest/ui@^1.0.4",
-        "npm:brotli-wasm@^3.0.1",
-        "npm:esbuild@~0.18.20",
-        "npm:eslint@^8.46.0",
-        "npm:loro-crdt@0.16.0",
-        "npm:loro-crdt@1.0.0-alpha.4",
-        "npm:prettier@3",
-        "npm:rollup-plugin-dts@^5.3.0",
-        "npm:rollup-plugin-esbuild@5",
-        "npm:rollup@^3.20.1",
-        "npm:tslib@^2.8.0",
-        "npm:typescript@^5.6.3",
-        "npm:vite-plugin-top-level-await@^1.2.2",
-        "npm:vite-plugin-wasm@^3.1.0",
-        "npm:vite@^4.2.1",
-        "npm:vitest@^1.4.0"
-      ]
-    }
   }
 }

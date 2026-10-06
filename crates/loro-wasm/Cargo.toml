@@ -1,6 +1,7 @@
+# HyperSpaces modification: own-build package identity.
 [package]
 name = "loro-wasm"
-version = "1.16.4"
+version = "1.16.4-hyperspaces.1"
 edition = "2021"
 publish = false
 repository = "https://github.com/loro-dev/loro/"

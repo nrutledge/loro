@@ -1,0 +1,13 @@
+[package]
+name="loro-patched-1164-validation"
+version="0.1.0"
+edition="2021"
+[workspace]
+[dependencies]
+loro={path="../../../crates/loro"}
+serde_json="1"
+[[bin]]
+name="loro-patched-1164-validation"
+path="../history.rs"
+[patch.crates-io]
+generic-btree={path="../../../crates/generic-btree"}

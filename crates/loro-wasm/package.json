@@ -1,6 +1,6 @@
 {
   "name": "loro-crdt",
-  "version": "1.16.4",
+  "version": "1.16.4-hyperspaces.1",
   "description": "Loro CRDTs is a high-performance CRDT framework that makes your app state synchronized, collaborative and maintainable effortlessly.",
   "keywords": [
     "crdt",
@@ -12,7 +12,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/loro-dev/loro.git"
+    "url": "git+https://github.com/nrutledge/loro.git"
   },
   "main": "nodejs/index.js",
   "browser": "browser/index.js",
@@ -72,12 +72,14 @@
     "CHANGELOG.md",
     "README.md",
     "LICENSE",
-    "package.json"
+    "package.json",
+    "FORK_CHANGES.md",
+    "BUILD_PROVENANCE.json"
   ],
   "scripts": {
-    "build-dev": "deno run -A ./scripts/build.ts dev && rollup -c && deno run -A ./scripts/post-rollup.ts && npm run test",
-    "build-release": "deno run -A ./scripts/build.ts release && rollup -c && deno run -A ./scripts/post-rollup.ts && npm run test",
-    "test": "node --no-experimental-require-module ./scripts/test-commonjs.cjs && node --expose-gc ./node_modules/vitest/vitest.mjs run && npx tsc --noEmit && cd ./deno_tests && deno test -A && cd ../bun_tests && bun test",
+    "build-dev": "deno run --frozen --lock=deno.lock -A ./scripts/build.ts dev && rollup -c && deno run --frozen --lock=deno.lock -A ./scripts/post-rollup.ts && corepack pnpm test",
+    "build-release": "deno run --frozen --lock=deno.lock -A ./scripts/build.ts release && rollup -c && deno run --frozen --lock=deno.lock -A ./scripts/post-rollup.ts && corepack pnpm test",
+    "test": "node --no-experimental-require-module ./scripts/test-commonjs.cjs && node --expose-gc ./node_modules/vitest/vitest.mjs run && corepack pnpm exec tsc --noEmit && cd ./deno_tests && deno test -A && cd ../bun_tests && bun test",
     "test:snapshot-memory": "node --expose-gc ./scripts/measure-snapshot-round-memory.cjs"
   },
   "homepage": "https://loro.dev",

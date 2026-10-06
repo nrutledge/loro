@@ -19,3 +19,11 @@ sponsorkit/.cache.json
 .claude/
 .gstack/
 .hegel/
+
+# HyperSpaces generated verification/build output
+.hyperspaces-tools/
+scripts/hyperspaces/baseline/
+hyperspaces-target/
+hyperspaces-artifacts/
+crates/loro-wasm/FORK_CHANGES.md
+crates/loro-wasm/BUILD_PROVENANCE.json

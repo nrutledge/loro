@@ -1,0 +1,42 @@
+# HyperSpaces-only build; artifact upload, no registry/upstream publication.
+name: HyperSpaces patched Loro
+on:
+  push:
+    branches: [hyperspaces]
+  pull_request:
+    branches: [hyperspaces]
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.repository == 'nrutledge/loro'
+    runs-on: ubuntu-24.04
+    container:
+      image: rust@sha256:59037199c44290f2befcdd58dcc540164763fc296950255aaefeef096a1866b0
+    env:
+      CARGO_HOME: /work/cargo
+      CARGO_BUILD_JOBS: 4
+      RUSTUP_TOOLCHAIN: 1.99.0
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.3
+      - name: Use canonical build path
+        run: mkdir -p /work && cp -a . /work/source
+      - name: Install pinned tools
+        working-directory: /work/source
+        run: bash scripts/hyperspaces/setup.sh
+      - name: Native suite and differential histories
+        working-directory: /work/source
+        run: bash scripts/hyperspaces/verify-native.sh
+      - name: Build and verify WASM twice
+        working-directory: /work/source
+        run: bash scripts/hyperspaces/build-package.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: loro-crdt-${{ github.sha }}
+          path: /work/source/hyperspaces-artifacts/*
+          if-no-files-found: error

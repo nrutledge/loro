@@ -1,7 +1,7 @@
+// HyperSpaces modification: pinned/locked builds and Deno 2 command API.
 import * as path from "https://deno.land/std@0.105.0/path/mod.ts";
 import { gzip } from "https://deno.land/x/compress@v0.4.5/mod.ts";
-import brotliPromise from "npm:brotli-wasm";
-import { getOctokit } from "npm:@actions/github";
+import brotliPromise from "npm:brotli-wasm@3.0.1";
 
 // Polyfill for missing performance.markResourceTiming function in Deno
 if (
@@ -39,23 +39,13 @@ const wasmPackageJson = JSON.parse(
 );
 const LoroWasmVersion = (wasmPackageJson as { version: string }).version;
 const MapPackageDir = path.resolve(__dirname, "../../loro-wasm-map");
-const WASM_SOURCEMAP_BASE = `https://unpkg.com/loro-crdt-map@${LoroWasmVersion}`;
+
 const EMBED_SCRIPT = path.resolve(
   __dirname,
   "../../../scripts/embed-wasm-sourcemap.mjs",
 );
 const textDecoder = new TextDecoder();
 
-// Check if running in CI
-const isCI = Deno.env.get("CI") === "true";
-const githubToken = Deno.env.get("GITHUB_TOKEN");
-const githubEventPath = Deno.env.get("GITHUB_EVENT_PATH");
-
-console.log({
-  isCI,
-  githubToken: !!githubToken,
-  githubEventPath: githubEventPath,
-});
 async function build() {
   await cargoBuild();
   await stripReferenceTypesFeatureHint();
@@ -114,63 +104,7 @@ async function build() {
     const brotliSize = (brotliCompressed.length / 1024).toFixed(2);
     console.log("Brotli size: ", brotliSize, "KB");
 
-    // Report sizes to PR if in CI
-    if (isCI && githubToken && githubEventPath) {
-      console.log("Creating comment for PR");
-      try {
-        // Parse GitHub event data
-        const event = JSON.parse(await Deno.readTextFile(githubEventPath));
-        console.log("event", event);
-        if (event.pull_request) {
-          const prNumber = event.pull_request.number;
-          const repo = event.repository.full_name;
-          const [owner, repoName] = repo.split("/");
 
-          const commentBody = `## WASM Size Report
-<!-- loro-wasm-size-report -->
-- Original size: ${wasmSize} KB
-- Gzipped size: ${gzipSize} KB
-- Brotli size: ${brotliSize} KB`;
-
-          // Initialize Octokit client
-          const octokit = getOctokit(githubToken);
-
-          // Find if we already have a comment with our marker
-          const { data: comments } = await octokit.rest.issues.listComments({
-            owner,
-            repo: repoName,
-            issue_number: prNumber,
-          });
-
-          const sizeReportMarker = "<!-- loro-wasm-size-report -->";
-          const existingComment = comments.find((comment) =>
-            comment.body?.includes(sizeReportMarker),
-          );
-
-          if (existingComment) {
-            // Update existing comment
-            await octokit.rest.issues.updateComment({
-              owner,
-              repo: repoName,
-              comment_id: existingComment.id,
-              body: commentBody,
-            });
-            console.log("Updated existing WASM size report comment");
-          } else {
-            // Create new comment
-            await octokit.rest.issues.createComment({
-              owner,
-              repo: repoName,
-              issue_number: prNumber,
-              body: commentBody,
-            });
-            console.log("Created new WASM size report comment");
-          }
-        }
-      } catch (error) {
-        console.error("Failed to report sizes to PR:", error);
-      }
-    }
   }
 }
 
@@ -178,6 +112,7 @@ async function cargoBuild() {
   const cmd = [
     "cargo",
     "build",
+    "--locked",
     "--target",
     "wasm32-unknown-unknown",
     "--profile",
@@ -199,11 +134,11 @@ async function cargoBuild() {
           };
         })()
       : undefined;
-  const status = await Deno.run({
-    cmd,
+  const status = await new Deno.Command(cmd[0], {
+    args: cmd.slice(1),
     cwd: LoroWasmDir,
     env,
-  }).status();
+  }).spawn().status;
   if (!status.success) {
     console.log(
       "❌",
@@ -229,7 +164,9 @@ async function buildTarget(target: string) {
   const bindgenTarget = target === "browser" ? "bundler" : target;
   const cmd = `wasm-bindgen --keep-debug --weak-refs --target ${bindgenTarget} --out-dir ${target} ${RawWasmPath}`;
   console.log(">", cmd);
-  await Deno.run({ cmd: cmd.split(" "), cwd: LoroWasmDir }).status();
+  const [command, ...args] = cmd.split(" ");
+  const status = await new Deno.Command(command, { args, cwd: LoroWasmDir }).spawn().status;
+  if (!status.success) throw new Error(`${command} failed with code ${status.code}`);
   console.log();
 
   await postProcessWasm(targetDirPath, target);
@@ -361,9 +298,6 @@ async function stripReferenceTypesFeatureHint() {
 }
 
 const resolveSourcemapReference = (target: string): string => {
-  if (profile === "release") {
-    return `${WASM_SOURCEMAP_BASE}/${target}/loro_wasm_bg.wasm.map`;
-  }
   return "./loro_wasm_bg.wasm.map";
 };
 
@@ -410,10 +344,10 @@ async function embedSourcemap(target: string) {
     workspaceRoot,
   ];
   console.log(">", cmd.join(" "));
-  const status = await Deno.run({
-    cmd,
+  const status = await new Deno.Command(cmd[0], {
+    args: cmd.slice(1),
     cwd: LoroWasmDir,
-  }).status();
+  }).spawn().status;
   if (!status.success) {
     throw new Error("embed-wasm-sourcemap failed");
   }
@@ -442,13 +376,14 @@ async function exportSourcemap(target: string, sourcemapPath: string) {
     `📦  Copied ${target} sourcemap to loro-crdt-map package: ${destination}`,
   );
 
-  await Deno.remove(sourcemapPath);
+  // HyperSpaces packages their debug maps alongside the WASM bytes.
 }
 
 async function runWasmTools(args: string[]) {
   const command = new Deno.Command("cargo", {
     args: [
       "run",
+      "--locked",
       "--quiet",
       "--manifest-path",
       WorkspaceCargoToml,
