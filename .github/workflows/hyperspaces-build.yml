@@ -28,7 +28,11 @@ jobs:
         run: mkdir -p /work && cp -a . /work/source
       - name: Install pinned tools
         working-directory: /work/source
-        run: bash scripts/hyperspaces/setup.sh
+        run: |
+          bash scripts/hyperspaces/setup.sh
+          # HyperSpaces: register tools with the container runner for later steps.
+          echo "$PWD/.hyperspaces-tools/node_modules/.bin" >> "$GITHUB_PATH"
+          echo "$PWD/.hyperspaces-tools/bin" >> "$GITHUB_PATH"
       - name: Native suite and differential histories
         working-directory: /work/source
         run: bash scripts/hyperspaces/verify-native.sh
